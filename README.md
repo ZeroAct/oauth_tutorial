@@ -103,3 +103,11 @@ this query will automatically update `/etc/nginx/sites-enabled/zeroact.dev` file
 ```shell
 sudo systemctl reload nginx
 ```
+
+## 3. web app
+
+### copy static files to authorized folder
+```shell
+sudo cp -r static/* /var/www/world.zeroact.dev/
+```
+

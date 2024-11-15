@@ -6,7 +6,9 @@
     <script src="https://unpkg.com/htmx.org@2.0.3"></script>
   </head>
   <body>
-    <h1>Hello, world!</h1>
-    <a href="/auth/login">Login with google</a>
+    <a href="/auth/logout">로그아웃</a>
+    <img src="/static/logo.png" alt="logo">
+    <h1>{{ user_info["name"] }} 님 안녕하세요!</h1>
+    <p>{{ user_info["email"] }}</p>
   </body>
 </html>
