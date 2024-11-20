@@ -1,4 +1,6 @@
 # Oauth Tutorial
+<img src="https://github.com/user-attachments/assets/2b83a4f0-8a40-4f87-8a5e-d23ceec709d1" width="50%"/>
+
  A simple boilerplate for setting up HTTPS, Nginx, and OAuth with FastAPI and HTMX. This implementation handles OAuth through plain HTTP requests instead of using an OAuth-specific module.
 
 support
