@@ -6,9 +6,34 @@
     <script src="https://unpkg.com/htmx.org@2.0.3"></script>
   </head>
   <body>
-    <a href="/auth/logout">로그아웃</a>
-    <img src="/static/logo.png" alt="logo">
-    <h1>{{ user_info["name"] }} 님 안녕하세요!</h1>
-    <p>{{ user_info["email"] }}</p>
+    <style>
+      .welcome-container {
+        text-align: center;
+        margin-top: 50px;
+      }
+      .user-info {
+        background-color: #f9f9f9;
+        padding: 20px;
+        border-radius: 10px;
+        display: inline-block;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      }
+      .user-info p {
+        margin: 10px 0;
+      }
+    </style>
+    <div style="text-align: right; margin: 20px;">
+      <a href="/auth/logout" style="text-decoration: none; color: #fff; background-color: #007bff; padding: 10px 20px; border-radius: 5px; box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);">로그아웃</a>
+    </div>
+    <div style="text-align: center; margin-top: 20px;">
+      <img src="{{ user_info['image'] or '/static/default_profile.png' }}" alt="Profile Image" style="border-radius: 50%; max-width: 100px;">
+    </div>
+    <div class="welcome-container">
+      <h2>Welcome to My App!</h2>
+      <div class="user-info">
+        <p><strong>Name:</strong> {{ user_info["name"] }}</p>
+        <p><strong>Email:</strong> {{ user_info["email"] }}</p>
+      </div>
+    </div>
   </body>
 </html>

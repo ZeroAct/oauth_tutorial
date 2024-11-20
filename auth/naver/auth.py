@@ -1,16 +1,18 @@
 import os
+from urllib.parse import parse_qs, urlparse
 
 import httpx
 import requests
 from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import RedirectResponse
+from google_auth_oauthlib.flow import Flow
 
 from enums import Platform
 from scheme import UserInfo
 
-GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
-GOOGLE_CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET")
-GOOGLE_REDIRECT_URI = os.getenv("GOOGLE_REDIRECT_URI")
+NAVER_CLIENT_ID = os.getenv("NAVER_CLIENT_ID")
+NAVER_CLIENT_SECRET = os.getenv("NAVER_CLIENT_SECRET")
+NAVER_REDIRECT_URI = os.getenv("NAVER_REDIRECT_URI")
 
 
 router = APIRouter()
@@ -19,12 +21,11 @@ router = APIRouter()
 @router.get("/login")
 async def login():
     """
-    구글 로그인 URL로 리다이렉트
+    네이버 로그인 URL로 리다이렉트
     """
     auth_url = (
-        f"https://accounts.google.com/o/oauth2/v2/auth"
-        f"?client_id={GOOGLE_CLIENT_ID}&redirect_uri={GOOGLE_REDIRECT_URI}&response_type=code"
-        f"&scope=openid%20https://www.googleapis.com/auth/userinfo.email%20https://www.googleapis.com/auth/userinfo.profile"
+        f"https://nid.naver.com/oauth2.0/authorize"
+        f"?client_id={NAVER_CLIENT_ID}&redirect_uri={NAVER_REDIRECT_URI}&state={NAVER_CLIENT_SECRET}&response_type=code"
     )
     return RedirectResponse(auth_url)
 
@@ -32,10 +33,10 @@ async def login():
 @router.get("/callback")
 async def callback(code: str, request: Request):
     """
-    구글 인증 후 리다이렉트 콜백
+    네이버 인증 후 리다이렉트 콜백
     """
-    token_url = "https://oauth2.googleapis.com/token"
-    user_info_url = "https://www.googleapis.com/oauth2/v1/userinfo"
+    token_url = "https://nid.naver.com/oauth2.0/token"
+    # user_info_url = "https://kapi.kakao.com/v2/user/me"
 
     # Access Token 요청
     async with httpx.AsyncClient() as client:
@@ -43,10 +44,10 @@ async def callback(code: str, request: Request):
             token_url,
             data={
                 "grant_type": "authorization_code",
-                "client_id": GOOGLE_CLIENT_ID,
-                "client_secret": GOOGLE_CLIENT_SECRET,
-                "redirect_uri": GOOGLE_REDIRECT_URI,
+                "client_id": NAVER_CLIENT_ID,
+                "client_secret": NAVER_CLIENT_SECRET,
                 "code": code,
+                "state": code,
             },
             headers={"Content-Type": "application/x-www-form-urlencoded"},
         )
@@ -60,7 +61,8 @@ async def callback(code: str, request: Request):
 
         # 사용자 정보 요청
         user_response = await client.get(
-            user_info_url, headers={"Authorization": f"Bearer {access_token}"}
+            "https://openapi.naver.com/v1/nid/me",
+            headers={"Authorization": f"Bearer {access_token}"},
         )
 
         if user_response.status_code != 200:
@@ -71,10 +73,10 @@ async def callback(code: str, request: Request):
         user_info = user_response.json()
 
     request.session["user_info"] = UserInfo(
-        platform=Platform.GOOGLE.value,
-        name=user_info.get("name", "unknown"),
-        email=user_info.get("email", "unknown"),
-        image=user_info.get("picture", None),
+        platform=Platform.NAVER.value,
+        name=user_info["response"].get("name", "unknown"),
+        email=user_info["response"].get("email", "unknown"),
+        image=user_info["response"].get("profile_image", None),
     ).model_dump()
 
     return RedirectResponse(url="/")
