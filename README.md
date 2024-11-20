@@ -1,17 +1,41 @@
-# oauth_tutorial
+# Oauth Tutorial
+<img src="https://github.com/user-attachments/assets/2b83a4f0-8a40-4f87-8a5e-d23ceec709d1" width="50%"/>
 
-- [oauth_tutorial](#oauth-tutorial)
-  * [1. nginx setting](#1-nginx-setting)
-    + [install nginx](#install-nginx)
-    + [setting](#setting)
-      - [example](#example)
-    + [Run](#run)
-  * [2. enable https](#2-enable-https)
-    + [install certbot](#install-certbot)
-    + [configure nginx conf (auto)](#configure-nginx-conf--auto-)
+ A simple boilerplate for setting up HTTPS, Nginx, and OAuth with FastAPI and HTMX. This implementation handles OAuth through plain HTTP requests instead of using an OAuth-specific module.
+
+support
+- [google login](https://console.cloud.google.com/)
+- [kakao login](https://developers.kakao.com/)
+- [naver login](https://developers.naver.com/)
+
+## index
+- [1. nginx setting](#1-nginx-setting)
+  * [install nginx](#install-nginx)
+  * [setting](#setting)
+    + [example](#example)
+  * [Run](#run)
+- [2. enable https](#2-enable-https)
+  * [install certbot](#install-certbot)
+  * [configure nginx conf (auto)](#configure-nginx-conf--auto-)
+- [3. web app](#3-web-app)
+  * [copy static files to authorized folder](#copy-static-files-to-authorized-folder)
+  * [Run](#run-1)
 
 <small><i><a href='http://ecotrust-canada.github.io/markdown-toc/'>Table of contents generated with markdown-toc</a></i></small>
 
+## 0. Setting Environment
+```
+GOOGLE_CLIENT_ID=YOUR_VALUE
+GOOGLE_CLIENT_SECRET=YOUR_VALUE
+GOOGLE_REDIRECT_URI=YOUR_VALUE
+
+KAKAO_API_KEY=YOUR_VALUE
+KAKAO_REDIRECT_URI=YOUR_VALUE
+
+NAVER_CLIENT_ID=YOUR_VALUE
+NAVER_CLIENT_SECRET=YOUR_VALUE
+NAVER_REDIRECT_URI=YOUR_VALUE
+```
 
 ## 1. nginx setting
 
@@ -111,3 +135,7 @@ sudo systemctl reload nginx
 sudo cp -r static/* /var/www/world.zeroact.dev/
 ```
 
+### Run
+```
+uvicorn app:app --host 0.0.0.0
+```
