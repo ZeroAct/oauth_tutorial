@@ -63,26 +63,13 @@ sudo ln -s /etc/nginx/sites-available/yourdomain.com /etc/nginx/sites-enabled/
 #### example
 `/etc/nginx/sites-enabled/zeroact.dev`
 
-1. 80 port to `/var/www/something`
+reverse proxy
+
+1. http 80
 ```
 server {
     listen 80;
-    server_name zeroact.dev;
-
-    root /var/www/something;
-    index index.html index.htm;
-
-    location / {
-        try_files $uri $uri/ =404;
-    }
-}
-```
-
-2. 80 port to localhost service `http://localhost:8000` (reverse proxy)
-```
-server {
-    listen 80;
-    server_name app.zeroact.dev;
+    server_name world.zeroact.dev;
 
     location / {
         proxy_pass http://localhost:8000;
@@ -90,7 +77,63 @@ server {
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
+
+        # WebSocket support
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
     }
+
+    location /static/ {
+        alias /var/www/world.zeroact.dev/;
+        autoindex on;
+        allow all;
+    }
+}
+```
+
+2. https 443
+```
+server {
+
+    server_name world.zeroact.dev;
+
+    location / {
+        proxy_pass http://localhost:8000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+
+        # WebSocket support
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+    }
+
+    location /static/ {
+        alias /var/www/world.zeroact.dev/;
+        autoindex on;
+        allow all;
+    }
+
+    listen 443 ssl; # managed by Certbot
+    ssl_certificate /etc/letsencrypt/live/world.zeroact.dev/fullchain.pem; # managed by Certbot
+    ssl_certificate_key /etc/letsencrypt/live/world.zeroact.dev/privkey.pem; # managed by Certbot
+    include /etc/letsencrypt/options-ssl-nginx.conf; # managed by Certbot
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem; # managed by Certbot
+}
+
+server {  # Redirect 80 port to 443
+    if ($host = world.zeroact.dev) {
+        return 301 https://$host$request_uri;
+    } # managed by Certbot
+
+
+    listen 80;
+
+    server_name world.zeroact.dev;
+    return 404; # managed by Certbot
 }
 ```
 
